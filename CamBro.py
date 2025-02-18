@@ -51,9 +51,9 @@ def capture_photo():
             # Generate timestamp for filename
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             
-            # Save to both directories
-            backup_path = f'ToBackup/image_{timestamp}.jpg'
-            claude_path = f'ToClaude/image_{timestamp}.jpg'
+            # Save to both directories with PNG format
+            backup_path = f'ToBackup/image_{timestamp}.png'
+            claude_path = f'ToClaude/image_{timestamp}.png'
             
             cv2.imwrite(backup_path, denoised)
             cv2.imwrite(claude_path, denoised)
