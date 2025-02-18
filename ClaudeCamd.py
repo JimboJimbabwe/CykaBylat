@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+# Define static prompt
+STATIC_PROMPT = "You will receive an image with text on the screen, your goal is to respond with the entirety of the text that is seen to the best of your ability."
+
 class PhotoProcessor:
     def __init__(self):
         # Load environment variables
@@ -90,9 +93,6 @@ class PhotoProcessor:
             os.remove(image_path)
             self.console.print("[green]Image processed and deleted successfully[/green]")
 
-            # Clean up the processed image
-            os.remove(image_path)
-
         except Exception as e:
             self.console.print(f"[red]Error: {str(e)}[/red]")
 
@@ -101,15 +101,14 @@ class PhotoHandler(FileSystemEventHandler):
         self.processor = processor
 
     def on_created(self, event):
-        if not event.is_directory and event.src_path.endswith(('.png', '.jpg', '.jpeg')):
+        if (not event.is_directory and 
+            event.src_path.endswith(('.png', '.jpg', '.jpeg')) and 
+            os.path.exists(event.src_path)):  # Verify file still exists
             # Wait a brief moment to ensure the file is fully written
             time.sleep(1)
             
-            # Get user prompt
-            prompt = input("\nEnter your prompt for Claude: ")
-            
-            # Process the image
-            self.processor.send_to_claude(event.src_path, prompt)
+            # Process the image with static prompt
+            self.processor.send_to_claude(event.src_path, STATIC_PROMPT)
 
 def main():
     # Create processor
@@ -128,8 +127,7 @@ def main():
         # Check if there's already an image in the folder
         existing_photo = processor.get_latest_photo()
         if existing_photo:
-            prompt = input("\nFound existing image. Enter your prompt for Claude: ")
-            processor.send_to_claude(existing_photo, prompt)
+            processor.send_to_claude(existing_photo, STATIC_PROMPT)
 
         # Keep the script running
         while True:
