@@ -1,0 +1,6 @@
+anthropic
+python-dotenv
+rich
+watchdog
+opencv-python
+numpy
